@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "MyReport";
+}
+
+<link href="~/Content/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="~/Content/rdlcReport.css" rel="stylesheet" />
+@Html.RdlcReportViewer("demo", "")
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            Reports.demo.updateBodyCss({ "height": "500px" });
+        });
+    </script>
+    }
