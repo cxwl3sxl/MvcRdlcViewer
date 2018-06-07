@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// ReSharper disable once CheckNamespace
 namespace System.Web.Mvc.Html
 {
     public static class RdlcReportHtml
@@ -27,21 +22,21 @@ namespace System.Web.Mvc.Html
             string searchDialogWidth = "600px",
             string searchDialogHegiht = "450px",
             string helpLink = ""
-            )
+        )
         {
             return new MvcHtmlString("<div id='"
-                + viewerId
-                + "' data-toggle='rdlcReport' data-search-panel='"
-                + searchPanel
-                + "' data-validate-function='"
-                + clientValidateFunc
-                + "' data-help-link='"
-                + helpLink
-                + "' data-dialog-width='"
-                + searchDialogWidth
-                + "' data-dialog-height='"
-                + searchDialogHegiht
-                + "' ></div> ");
+                                     + viewerId
+                                     + "' data-toggle='rdlcReport' data-search-panel='"
+                                     + searchPanel
+                                     + "' data-validate-function='"
+                                     + clientValidateFunc
+                                     + "' data-help-link='"
+                                     + helpLink
+                                     + "' data-dialog-width='"
+                                     + searchDialogWidth
+                                     + "' data-dialog-height='"
+                                     + searchDialogHegiht
+                                     + "' ></div> ");
         }
     }
 }

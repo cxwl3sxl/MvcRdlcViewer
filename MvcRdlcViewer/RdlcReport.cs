@@ -1,13 +1,12 @@
 ﻿using Microsoft.Reporting.WebForms;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MvcRdlcViewer
 {
-    public class RdlcReport
+    /// <summary>
+    /// RdlcReport报表工具
+    /// </summary>
+    public static class RdlcReport
     {
         /// <summary>
         /// 在当前action中返回一个报表查看页面

@@ -43,6 +43,7 @@ namespace Demo.Controllers
                     });
                 }
                 report.DataSources.Add(new ReportDataSource("DataSet1", ds));
+                report.SetParameters(new ReportParameter("ReportParameter1", "asdasdasd"));
                 setting.DownLoadFileName = "牛";
             });
         }

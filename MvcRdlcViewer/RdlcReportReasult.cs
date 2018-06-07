@@ -5,25 +5,27 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace MvcRdlcViewer
 {
+    /// <summary>
+    /// 报表返回内容
+    /// </summary>
     public class RdlcReportReasult : ActionResult
     {
-        readonly string _reportFile = "";
-        Action<LocalReport, ReportSettings> _reportBuilder = null;
-        readonly Dictionary<string, string> exportFiles = new Dictionary<string, string>();
+        readonly string _reportFile;
+        readonly Action<LocalReport, ReportSettings> _reportBuilder;
+        readonly Dictionary<string, string> _exportFiles = new Dictionary<string, string>();
         internal RdlcReportReasult(string reportFile, Action<LocalReport, ReportSettings> builder)
         {
             _reportFile = reportFile;
             _reportBuilder = builder;
-            exportFiles.Add("image", ".tif");
-            exportFiles.Add("excel", ".xls");
-            exportFiles.Add("pdf", ".pdf");
-            exportFiles.Add("word", ".doc");
+            _exportFiles.Add("image", ".tif");
+            _exportFiles.Add("excel", ".xls");
+            _exportFiles.Add("pdf", ".pdf");
+            _exportFiles.Add("word", ".doc");
         }
 
         public override void ExecuteResult(ControllerContext context)
@@ -35,19 +37,19 @@ namespace MvcRdlcViewer
             }
             else if (cmd == "generate")
             {
-                outputGenerate(context);
+                OutputGenerate(context);
             }
             else if (cmd == "view")
             {
-                outputImage(context);
+                OutputImage(context);
             }
             else if (cmd == "export")
             {
-                outputExport(context);
+                OutputExport(context);
             }
             else
             {
-                outputNotSupported(cmd, context);
+                OutputNotSupported(cmd, context);
             }
         }
 
@@ -72,28 +74,37 @@ namespace MvcRdlcViewer
             viewReasult.ExecuteResult(context);
         }
 
-        private void outputGenerate(ControllerContext context)
+        private void DeletePreGeneratedFile(string oldReport)
+        {
+            if (string.IsNullOrWhiteSpace(oldReport)) return;
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    foreach (var ext in _exportFiles)
+                    {
+                        try
+                        {
+                            File.Delete(Path.Combine(Path.GetTempPath(), oldReport + ext.Value));
+                        }
+                        // ReSharper disable once EmptyGeneralCatchClause
+                        catch
+                        {
+                        }
+                    }
+                }
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
+                {
+                }
+            });
+        }
+
+        private void OutputGenerate(ControllerContext context)
         {
             var reportFile = context.HttpContext.Server.MapPath(_reportFile);
             var oldReport = context.HttpContext.Request.QueryString["__oldrdlReport"];
-            if (!string.IsNullOrWhiteSpace(oldReport))
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        foreach (var ext in exportFiles)
-                        {
-                            try
-                            {
-                                File.Delete(Path.Combine(Path.GetTempPath(), oldReport + ext.Value));
-                            }
-                            catch { }
-                        }
-                    }
-                    catch { }
-                });
-            }
+            DeletePreGeneratedFile(oldReport);
             if (!File.Exists(reportFile))
             {
                 outputJson(new GenerateReasult
@@ -103,7 +114,7 @@ namespace MvcRdlcViewer
                 }, context);
                 return;
             }
-            ReportViewer rv = new ReportViewer();
+            var rv = new ReportViewer();
             rv.LocalReport.ReportPath = reportFile;
             var settings = new ReportSettings();
             if (_reportBuilder != null)
@@ -126,32 +137,31 @@ namespace MvcRdlcViewer
             {
                 rv.LocalReport.Refresh();
                 var reportFileId = Guid.NewGuid().ToString();
-                var img = exportFiles.ElementAt(0);
+                var img = _exportFiles.ElementAt(0);
 
                 exportTargetFile(reportFileId, img.Value, img.Key, rv, settings);
 
-                Task.Factory.StartNew(new Action<object>(args =>
+                Task.Factory.StartNew(args =>
                 {
                     try
                     {
-                        var tuple = args as Tuple<string, ReportViewer, ReportSettings>;
-                        if (tuple == null)
+                        if (!(args is Tuple<string, ReportViewer, ReportSettings> tuple))
                             return;
-                        for (int i = 1; i < exportFiles.Count; i++)
+                        for (var i = 1; i < _exportFiles.Count; i++)
                         {
-                            var cfg = exportFiles.ElementAt(i);
+                            var cfg = _exportFiles.ElementAt(i);
                             exportTargetFile(tuple.Item1, cfg.Value, cfg.Key, tuple.Item2, tuple.Item3);
                         }
                     }
-                    catch { }
-                }), new Tuple<string, ReportViewer, ReportSettings>(reportFileId, rv, settings));
-
-                //PageCountMode pageCountModel;
-                //var pageCount = rv.LocalReport.GetTotalPages(out pageCountModel);
+                    // ReSharper disable once EmptyGeneralCatchClause
+                    catch
+                    {
+                    }
+                }, new Tuple<string, ReportViewer, ReportSettings>(reportFileId, rv, settings));
 
                 var tiffImg = Image.FromFile(Path.Combine(Path.GetTempPath(), reportFileId + ".tif"));
-                Guid guid = tiffImg.FrameDimensionsList[0];
-                FrameDimension dimension = new FrameDimension(guid);
+                var guid = tiffImg.FrameDimensionsList[0];
+                var dimension = new FrameDimension(guid);
                 var pageCount = tiffImg.GetFrameCount(dimension);
                 tiffImg.Dispose();
 
@@ -168,12 +178,12 @@ namespace MvcRdlcViewer
                 outputJson(new GenerateReasult
                 {
                     Code = 3,
-                    Message = ex.Message
+                    Message = GetFirstExceptionMessage(ex)
                 }, context);
             }
         }
 
-        private void outputImage(ControllerContext context)
+        private void OutputImage(ControllerContext context)
         {
             var indexStr = context.HttpContext.Request.QueryString["__rdlIndex"];
             var reportId = context.HttpContext.Request.QueryString["__rdlReport"];
@@ -196,8 +206,7 @@ namespace MvcRdlcViewer
                 }, context);
                 return;
             }
-            var index = 0;
-            if (!int.TryParse(indexStr, out index))
+            if (!int.TryParse(indexStr, out var index))
             {
                 outputJson(new GenerateReasult()
                 {
@@ -207,18 +216,18 @@ namespace MvcRdlcViewer
                 return;
             }
             var tiff = Image.FromFile(reportFile);
-            Guid guid = tiff.FrameDimensionsList[0];
-            FrameDimension dimension2 = new FrameDimension(guid);
+            var guid = tiff.FrameDimensionsList[0];
+            var dimension2 = new FrameDimension(guid);
             tiff.SelectActiveFrame(dimension2, index);
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 tiff.Save(ms, ImageFormat.Png);
-                outputBinary(ms.ToArray(), context);
+                OutputBinary(ms.ToArray(), context);
             }
             tiff.Dispose();
         }
 
-        private void outputBinary(byte[] buffer, ControllerContext context)
+        private void OutputBinary(byte[] buffer, ControllerContext context)
         {
             context.HttpContext.Response.ContentType = "image/jpeg";
             context.HttpContext.Response.BinaryWrite(buffer);
@@ -226,7 +235,7 @@ namespace MvcRdlcViewer
             context.HttpContext.Response.End();
         }
 
-        private void outputNotSupported(string cmd, ControllerContext context)
+        private void OutputNotSupported(string cmd, ControllerContext context)
         {
             outputJson(new GenerateReasult
             {
@@ -235,23 +244,22 @@ namespace MvcRdlcViewer
             }, context);
         }
 
-        private void outputExport(ControllerContext context)
+        private void OutputExport(ControllerContext context)
         {
             var fileId = context.HttpContext.Request.QueryString["__rdlReport"];
             var type = context.HttpContext.Request.QueryString["__rdlType"];
-            var fileName= context.HttpContext.Request.QueryString["__rdlName"];
+            var fileName = context.HttpContext.Request.QueryString["__rdlName"];
             var targetFile = Path.Combine(Path.GetTempPath(), fileId + "." + type);
             if (File.Exists(targetFile))
             {
-                FilePathResult fpr = new FilePathResult(targetFile, "application/octet-stream");
-                var fn = string.IsNullOrWhiteSpace(fileName) ? string.Format("报表导出({0})", DateTime.Now.ToString("yyyyMMddHHmmss")) : fileName;
+                var fpr = new FilePathResult(targetFile, "application/octet-stream");
+                var fn = string.IsNullOrWhiteSpace(fileName) ? $"报表导出({DateTime.Now:yyyyMMddHHmmss})" : fileName;
                 fpr.FileDownloadName = fn + "." + type;
                 fpr.ExecuteResult(context);
             }
             else
             {
-                ContentResult cr = new ContentResult();
-                cr.Content = "<script>alert('对不起，请需要下载的文件不存在，请重试！');window.close();</script>";
+                var cr = new ContentResult { Content = "<script>alert('对不起，请需要下载的文件不存在，请重试！');window.close();</script>" };
                 cr.ExecuteResult(context);
             }
         }
@@ -262,11 +270,22 @@ namespace MvcRdlcViewer
             var dir = Path.GetDirectoryName(tempImagePath);
             if (!Directory.Exists(dir))
             {
-                Directory.CreateDirectory(dir);
+                Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
             }
             var fileBuffer = rv.LocalReport.Render(type, settings.IsChanged() ? settings.ToString() : null);
             File.WriteAllBytes(tempImagePath, fileBuffer);
-            fileBuffer = null;
+        }
+
+        string GetFirstExceptionMessage(Exception ex)
+        {
+            if (ex == null) return "未知错误";
+            var firstException = ex;
+            while (ex != null)
+            {
+                firstException = ex;
+                ex = ex.InnerException;
+            }
+            return firstException.Message;
         }
     }
 }
