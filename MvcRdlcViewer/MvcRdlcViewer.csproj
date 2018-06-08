@@ -121,4 +121,10 @@
     <None Include="Resources\style.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)build\NetRevisionTool.exe" /info /patch "$(ProjectDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir)build\NetRevisionTool.exe" /restore "$(ProjectDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
