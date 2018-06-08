@@ -30,22 +30,30 @@ namespace MvcRdlcViewer
 
         public override void ExecuteResult(ControllerContext context)
         {
-            var cmd = context.HttpContext.Request.QueryString["__rdlcmd"];
+            var cmd = context.HttpContext.Request.QueryString["__rdlcmd"]?.ToLower();
             if (string.IsNullOrWhiteSpace(cmd))
             {
-                outputView(context);
+                OutputView(context);
             }
-            else if (cmd == "generate")
+            else if (cmd.Equals("generate", StringComparison.OrdinalIgnoreCase))
             {
                 OutputGenerate(context);
             }
-            else if (cmd == "view")
+            else if (cmd.Equals("view", StringComparison.OrdinalIgnoreCase))
             {
                 OutputImage(context);
             }
-            else if (cmd == "export")
+            else if (cmd.Equals("export", StringComparison.OrdinalIgnoreCase))
             {
                 OutputExport(context);
+            }
+            else if (cmd.Equals("getScript", StringComparison.OrdinalIgnoreCase))
+            {
+                OutputString(Properties.Resources.script, "application/javascript", context);
+            }
+            else if (cmd.Equals("getStyle", StringComparison.OrdinalIgnoreCase))
+            {
+                OutputString(Properties.Resources.style, "text/css", context);
             }
             else
             {
@@ -53,15 +61,27 @@ namespace MvcRdlcViewer
             }
         }
 
-        private void outputJson(object data, ControllerContext context)
+        private void OutputString(string content, string contentType, ControllerContext context)
         {
-            JsonResult jr = new JsonResult();
-            jr.Data = data;
-            jr.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            var cr = new ContentResult
+            {
+                Content = content,
+                ContentType = contentType
+            };
+            cr.ExecuteResult(context);
+        }
+
+        private void OutputJson(object data, ControllerContext context)
+        {
+            var jr = new JsonResult
+            {
+                Data = data,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
             jr.ExecuteResult(context);
         }
 
-        private void outputView(ControllerContext context)
+        private void OutputView(ControllerContext context)
         {
             var viewReasult = new ViewResult()
             {
@@ -107,7 +127,7 @@ namespace MvcRdlcViewer
             DeletePreGeneratedFile(oldReport);
             if (!File.Exists(reportFile))
             {
-                outputJson(new GenerateReasult
+                OutputJson(new GenerateReasult
                 {
                     Code = 1,
                     Message = "报表" + _reportFile + "不存在！"
@@ -125,7 +145,7 @@ namespace MvcRdlcViewer
                 }
                 catch (Exception ex)
                 {
-                    outputJson(new GenerateReasult
+                    OutputJson(new GenerateReasult
                     {
                         Code = 2,
                         Message = ex.Message
@@ -165,7 +185,7 @@ namespace MvcRdlcViewer
                 var pageCount = tiffImg.GetFrameCount(dimension);
                 tiffImg.Dispose();
 
-                outputJson(new GenerateReasult
+                OutputJson(new GenerateReasult
                 {
                     Code = 0,
                     FileId = reportFileId,
@@ -175,7 +195,7 @@ namespace MvcRdlcViewer
             }
             catch (Exception ex)
             {
-                outputJson(new GenerateReasult
+                OutputJson(new GenerateReasult
                 {
                     Code = 3,
                     Message = GetFirstExceptionMessage(ex)
@@ -189,7 +209,7 @@ namespace MvcRdlcViewer
             var reportId = context.HttpContext.Request.QueryString["__rdlReport"];
             if (string.IsNullOrWhiteSpace(reportId))
             {
-                outputJson(new GenerateReasult()
+                OutputJson(new GenerateReasult()
                 {
                     Code = 4,
                     Message = "未指定需要查看的报表ID."
@@ -199,7 +219,7 @@ namespace MvcRdlcViewer
             var reportFile = Path.Combine(Path.GetTempPath(), reportId + ".tif");
             if (!File.Exists(reportFile))
             {
-                outputJson(new GenerateReasult()
+                OutputJson(new GenerateReasult()
                 {
                     Code = 4,
                     Message = "指定了错误的报表ID或者该报表已经被服务器端删除."
@@ -208,7 +228,7 @@ namespace MvcRdlcViewer
             }
             if (!int.TryParse(indexStr, out var index))
             {
-                outputJson(new GenerateReasult()
+                OutputJson(new GenerateReasult()
                 {
                     Code = 4,
                     Message = "未指定需要查看的报表页或者指定的数据有误."
@@ -237,7 +257,7 @@ namespace MvcRdlcViewer
 
         private void OutputNotSupported(string cmd, ControllerContext context)
         {
-            outputJson(new GenerateReasult
+            OutputJson(new GenerateReasult
             {
                 Code = -1,
                 Message = "命令" + cmd + "不被支持."

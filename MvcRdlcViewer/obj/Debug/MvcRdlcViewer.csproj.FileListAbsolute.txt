@@ -156,3 +156,5 @@ F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.csproj.CoreCompile
 F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.csproj.CopyComplete
 F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.dll
 F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.pdb
+F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.Properties.Resources.resources
+F:\others\MvcRdlcViewer\MvcRdlcViewer\obj\Debug\MvcRdlcViewer.csproj.GenerateResource.cache

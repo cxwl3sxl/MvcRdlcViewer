@@ -94,6 +94,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GenerateReasult.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RdlcReport.cs" />
     <Compile Include="RdlcReportHtml.cs" />
     <Compile Include="RdlcReportReasult.cs" />
@@ -102,6 +107,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\script.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\style.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

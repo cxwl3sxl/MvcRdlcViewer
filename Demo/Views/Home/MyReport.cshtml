@@ -4,8 +4,10 @@
 }
 
 <link href="~/Content/font-awesome/css/font-awesome.css" rel="stylesheet" />
-<link href="~/Content/rdlcReport.css" rel="stylesheet" />
-@Html.RdlcReportViewer("demo", "")
+<!--bbb-->
+@Html.RdlcStyleCore()
+<!--aaa-->
+@Html.RdlcReportViewer("demo", "", "", "xxaaSx")
 
 @section scripts
 {
@@ -13,5 +15,33 @@
         $(function () {
             Reports.demo.updateBodyCss({ "height": "500px" });
         });
+
+        rdlcViewerLang.xxx = {
+            print: "打印xxx",
+            refresh: "刷新",
+            flowDisplay: "连续显示",
+            singlePage: "单页显示",
+            firstPage: "首页",
+            prePage: "上一页",
+            nextPage: "下一页",
+            lastPage: "末页",
+            exportPdf: "导出为PDF",
+            exportExcel: "导出为Excel",
+            exportWord: "导出为Word",
+            exportImage: "导出为图片",
+            help: "帮助",
+            searchButton: "搜索",
+            total: "共{0}页",
+            searchDialogTitle: "报表检索",
+            printWhenNoDataLoaded: "当前还未加载任何数据，无法打印！",
+            errors: {
+                reportFileNotExist: "由于报表文件不存在，无法生成报表，请检查报表文件是否存在；技术信息：\n{0}",
+                generateDataError: "由于生成数据报错，目前暂时无法查看报表；技术信息：\n{0}",
+                generateReportError: "由于生成报表报错，目前暂时无法查看报表；技术信息：\n{0}",
+                viewReportError: "由于查看报表出错，目前暂时无法查看报表；技术信息：\n{0}",
+                commandNotSupported: "由于命令不支持，目前暂时无法查看报表；技术信息：\n{0}",
+                noHelpInfo: "当前未设置任何帮助信息，请联系管理员！"
+            }
+        }
     </script>
-    }
+}
