@@ -55,6 +55,10 @@ namespace MvcRdlcViewer
             {
                 OutputString(Properties.Resources.style, "text/css", context);
             }
+            else if (cmd.Equals("loading", StringComparison.OrdinalIgnoreCase))
+            {
+                OutputBinary(Properties.Resources.input_spinner_gif, "image/gif", context);
+            }
             else
             {
                 OutputNotSupported(cmd, context);
@@ -242,14 +246,14 @@ namespace MvcRdlcViewer
             using (var ms = new MemoryStream())
             {
                 tiff.Save(ms, ImageFormat.Png);
-                OutputBinary(ms.ToArray(), context);
+                OutputBinary(ms.ToArray(), "image/jpeg", context);
             }
             tiff.Dispose();
         }
 
-        private void OutputBinary(byte[] buffer, ControllerContext context)
+        private void OutputBinary(byte[] buffer, string contentType, ControllerContext context)
         {
-            context.HttpContext.Response.ContentType = "image/jpeg";
+            context.HttpContext.Response.ContentType = contentType;
             context.HttpContext.Response.BinaryWrite(buffer);
             context.HttpContext.Response.Flush();
             context.HttpContext.Response.End();

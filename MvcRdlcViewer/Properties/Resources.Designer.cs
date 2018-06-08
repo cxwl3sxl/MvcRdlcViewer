@@ -61,6 +61,16 @@ namespace MvcRdlcViewer.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] input_spinner_gif {
+            get {
+                object obj = ResourceManager.GetObject("input_spinner_gif", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 //#region JQuery printArea
         ////**
         /// *  Version 2.4.0 Copyright (C) 2013

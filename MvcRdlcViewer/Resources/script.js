@@ -410,7 +410,10 @@ var rdlcViewerLang = {
         }
         body += '</div>';
         body += '<div class="loading" style="display:none">';
-        body += '<img src="/Content/images/input-spinner.gif" />';
+        body += '<img src="'
+            + window.location.origin
+            + window.location.pathname
+            + '?__rdlcmd=loading" />';
         body += '</div>';
         body += '<divc class="report-detail"></divc>';
         body += '</div>';
