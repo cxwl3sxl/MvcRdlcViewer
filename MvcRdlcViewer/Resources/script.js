@@ -411,8 +411,7 @@ var rdlcViewerLang = {
         body += '</div>';
         body += '<div class="loading" style="display:none">';
         body += '<img src="'
-            + window.location.origin
-            + window.location.pathname
+            + getBaseUrl()
             + '?__rdlcmd=loading" />';
         body += '</div>';
         body += '<divc class="report-detail"></divc>';
@@ -450,7 +449,7 @@ var rdlcViewerLang = {
         });
 
         function buildUrl(args) {
-            var baseUrl = window.location.origin + window.location.pathname;
+            var baseUrl = getBaseUrl();
             var searchStr = window.location.search;
             var oldSearch = {};
             if (searchStr) {
@@ -470,6 +469,13 @@ var rdlcViewerLang = {
                 baseUrl += a + "=" + encodeURI(oldSearch[a]) + "&";
             }
             return baseUrl;
+        }
+
+        function getBaseUrl() {
+            if (window.location.origin) {
+                return window.location.origin + window.location.pathname;
+            }
+            return window.location.protocol + "//" + window.location.host + window.location.pathname;//用于兼容ie9
         }
 
         function loading() {
@@ -514,8 +520,7 @@ var rdlcViewerLang = {
         }
 
         function getImageUrl(index, id) {
-            return window.location.origin
-                + window.location.pathname
+            return getBaseUrl()
                 + "?__rdlcmd=view&__rdlIndex="
                 + index
                 + "&__rdlReport="
@@ -635,8 +640,7 @@ var rdlcViewerLang = {
         }
 
         this.exportPdf = function () {
-            window.open(window.location.origin
-                + window.location.pathname
+            window.open(getBaseUrl()
                 + "?__rdlcmd=export&__rdlReport="
                 + $element.data("_reportId")
                 + "&__rdlType=pdf&__rdlName="
@@ -644,8 +648,7 @@ var rdlcViewerLang = {
         }
 
         this.exportExcel = function () {
-            window.open(window.location.origin
-                + window.location.pathname
+            window.open(getBaseUrl()
                 + "?__rdlcmd=export&__rdlReport="
                 + $element.data("_reportId")
                 + "&__rdlType=xls&__rdlName="
@@ -717,8 +720,7 @@ var rdlcViewerLang = {
         }
 
         this.exportWord = function () {
-            window.open(window.location.origin
-                + window.location.pathname
+            window.open(getBaseUrl()
                 + "?__rdlcmd=export&__rdlReport="
                 + $element.data("_reportId")
                 + "&__rdlType=doc&__rdlName="
@@ -726,8 +728,7 @@ var rdlcViewerLang = {
         }
 
         this.exportImage = function () {
-            window.open(window.location.origin
-                + window.location.pathname
+            window.open(getBaseUrl()
                 + "?__rdlcmd=export&__rdlReport="
                 + $element.data("_reportId")
                 + "&__rdlType=tif&__rdlName="
